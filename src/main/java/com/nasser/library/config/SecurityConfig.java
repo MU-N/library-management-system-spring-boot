@@ -35,7 +35,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * Security Features:
  * - Stateless authentication using JWT tokens
  * - Role-based access control (RBAC)
- * - CORS support for frontend applications
  * - CSRF protection disabled (not needed for stateless APIs)
  * - Method-level security annotations enabled
  */

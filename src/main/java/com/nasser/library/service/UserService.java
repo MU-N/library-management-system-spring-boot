@@ -7,6 +7,8 @@ import com.nasser.library.model.entity.User;
 import com.nasser.library.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -263,4 +266,137 @@ public class UserService implements UserDetailsService {
         }
     }
 
+
+    /**
+     * Retrieves a paginated list of users from the system with sorting support.
+     * This method provides efficient data retrieval for large user datasets.
+     *
+     * @param pageable Pagination and sorting parameters
+     * @return a Page object containing user data and pagination metadata
+     */
+    public Page<User> getAllUsers(Pageable pageable) {
+        log.debug("Retrieving users with pagination - Page: {}, Size: {}, Sort: {}",
+                pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort());
+        try {
+            Page<User> usersPage = userRepository.findAll(pageable);
+            log.debug("Successfully retrieved {} users out of {} total users",
+                    usersPage.getNumberOfElements(), usersPage.getTotalElements());
+            return usersPage;
+        } catch (Exception e) {
+            log.error("Error retrieving paginated users: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to retrieve users", e);
+        }
+    }
+
+
+    /**
+     * Retrieves a user by their ID.
+     *
+     * @param id The ID of the user to retrieve
+     * @return The User entity if found
+     * @throws IllegalArgumentException if the user is not found
+     */
+    public User getUserById(Long id) {
+        log.debug("Retrieving user by ID: {}", id);
+        try {
+            User user = userRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + id));
+            log.debug("Successfully retrieved user by ID: {}", id);
+            return user;
+        } catch (Exception e) {
+            log.error("Error retrieving user by ID: {}", id, e);
+            throw new RuntimeException("Failed to retrieve user by ID", e);
+        }
+    }
+
+    /**
+     * Updates an existing user's information.
+     *
+     * @param id   The ID of the user to update
+     * @param user The updated User entity
+     * @return The updated User entity
+     * @throws IllegalArgumentException if the user is not found
+     */
+    public User updateUser(Long id, User user) {
+        log.debug("Updating user with ID: {}", id);
+        try {
+            User existingUser = userRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + id));
+
+            // Update user fields
+            existingUser.setFirstName(user.getFirstName());
+            existingUser.setLastName(user.getLastName());
+            existingUser.setEmail(user.getEmail());
+            existingUser.setPhone(user.getPhone());
+            existingUser.setRole(user.getRole());
+            existingUser.setMaxBooksAllowed(user.getMaxBooksAllowed());
+
+            User updatedUser = userRepository.save(existingUser);
+            log.debug("Successfully updated user with ID: {}", id);
+            return updatedUser;
+        } catch (Exception e) {
+            log.error("Error updating user with ID: {}", id, e);
+            throw new RuntimeException("Failed to update user", e);
+        }
+    }
+
+    /**
+     * Partially updates an existing user's information.
+     *
+     * @param id   The ID of the user to update
+     * @param user The User entity containing the fields to update
+     * @return The updated User entity
+     * @throws IllegalArgumentException if the user is not found
+     */
+    public User patchUser(Long id, User user) {
+        log.debug("Patching user with ID: {}", id);
+        try {
+            User existingUser = userRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + id));
+
+            // Update user fields if provided
+            if (user.getFirstName() != null) {
+                existingUser.setFirstName(user.getFirstName());
+            }
+            if (user.getLastName() != null) {
+                existingUser.setLastName(user.getLastName());
+            }
+            if (user.getEmail() != null) {
+                existingUser.setEmail(user.getEmail());
+            }
+            if (user.getPhone() != null) {
+                existingUser.setPhone(user.getPhone());
+            }
+            if (user.getRole() != null) {
+                existingUser.setRole(user.getRole());
+            }
+            if (user.getMaxBooksAllowed() != null) {
+                existingUser.setMaxBooksAllowed(user.getMaxBooksAllowed());
+            }
+
+            User updatedUser = userRepository.save(existingUser);
+            log.debug("Successfully patched user with ID: {}", id);
+            return updatedUser;
+        } catch (Exception e) {
+            log.error("Error patching user with ID: {}", id, e);
+            throw new RuntimeException("Failed to patch user", e);
+        }
+    }
+
+    /**
+     * Deletes a user from the system.
+     *
+     * @param id The ID of the user to delete
+     * @throws IllegalArgumentException if the user is not found
+     */
+    public void deleteUser(Long id) {
+        log.debug("Deleting user with ID: {}", id);
+        try {
+            userRepository.deleteById(id);
+            log.debug("Successfully deleted user with ID: {}", id);
+        } catch (Exception e) {
+            log.error("Error deleting user with ID: {}", id, e);
+            throw new RuntimeException("Failed to delete user", e);
+        }
+    }
 }
