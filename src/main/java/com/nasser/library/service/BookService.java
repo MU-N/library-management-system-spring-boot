@@ -1,0 +1,20 @@
+package com.nasser.library.service;
+
+import com.nasser.library.model.entity.Book;
+import com.nasser.library.repository.BookRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class BookService {
+    private final BookRepository bookRepository;
+
+    public Page<Book> getAllBooks(Pageable pageable) {
+
+    }
+}

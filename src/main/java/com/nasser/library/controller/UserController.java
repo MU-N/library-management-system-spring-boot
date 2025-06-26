@@ -2,6 +2,7 @@ package com.nasser.library.controller;
 
 import com.nasser.library.model.entity.User;
 import com.nasser.library.service.UserService;
+import com.nasser.library.util.ValidationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -41,28 +42,13 @@ public class UserController {
 
         log.info("Retrieving users - Page: {}, Size: {}, Sort: {} {}", page, size, sortBy, sortDir);
         try {
-            // Validate pagination parameters
-            if (page < 0) {
-                log.warn("Invalid page number: {}. Page must be >= 0", page);
+
+
+            // Create pageable with validation (consolidates all pagination logic)
+            Pageable pageable = ValidationUtils.createPageable(page, size, sortBy, sortDir, log);
+            if (pageable == null) {
                 return ResponseEntity.badRequest().build();
             }
-            if (size <= 0 || size > 100) {
-                log.warn("Invalid page size: {}. Size must be between 1 and 100", size);
-                return ResponseEntity.badRequest().build();
-            }
-
-            // Create sort direction
-            Sort.Direction direction;
-            try {
-                direction = Sort.Direction.fromString(sortDir);
-            } catch (IllegalArgumentException e) {
-                log.warn("Invalid sort direction: {}. Using default 'asc'", sortDir);
-                direction = Sort.Direction.ASC;
-            }
-
-            // Create pageable object
-            Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-
             // Get paginated users
             Page<User> usersPage = userService.getAllUsers(pageable);
 
