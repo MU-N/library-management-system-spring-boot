@@ -25,7 +25,7 @@ public class BookController {
     private final BookService bookService;
 
 
-    @GetMapping()
+    /*@GetMapping()
     public ResponseEntity<Page<Book>> getAllBooks(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -48,7 +48,7 @@ public class BookController {
             log.error("Error retrieving books: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
         }
-    }
+    }*/
 
 
 }

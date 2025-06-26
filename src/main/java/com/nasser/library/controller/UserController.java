@@ -1,14 +1,17 @@
 package com.nasser.library.controller;
 
+import com.nasser.library.mapper.UserMapper;
+import com.nasser.library.model.dto.request.UpdateUserRequest;
+import com.nasser.library.model.dto.response.UserListResponse;
+import com.nasser.library.model.dto.response.UserResponse;
 import com.nasser.library.model.entity.User;
 import com.nasser.library.service.UserService;
 import com.nasser.library.util.ValidationUtils;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,18 +26,19 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
 
     /**
-     * Retrieves a paginated list of all users with sorting support.
+     * Retrieves a list of all users with pagination and sorting.
      *
-     * @param page    Page number (0-based, default: 0)
-     * @param size    Number of users per page (default: 10, max: 100)
-     * @param sortBy  Field to sort by (default: "id")
-     * @param sortDir Sort direction - "asc" or "desc" (default: "asc")
-     * @return ResponseEntity containing a Page of User entities with pagination metadata
+     * @param page    The page number (zero-based)
+     * @param size    The number of items per page
+     * @param sortBy  The field to sort by
+     * @param sortDir The sort direction (asc or desc)
+     * @return ResponseEntity containing a Page of UserListResponse objects
      */
     @GetMapping
-    public ResponseEntity<Page<User>> getAllUsers(
+    public ResponseEntity<Page<UserListResponse>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -51,15 +55,16 @@ public class UserController {
             }
             // Get paginated users
             Page<User> usersPage = userService.getAllUsers(pageable);
+            Page<UserListResponse> responsePage = usersPage.map(userMapper::toListResponse);
 
             log.info("Successfully retrieved {} users out of {} total users. Page {}/{}",
-                    usersPage.getNumberOfElements(),
-                    usersPage.getTotalElements(),
-                    usersPage.getNumber() + 1,
-                    usersPage.getTotalPages());
+                    responsePage.getNumberOfElements(),
+                    responsePage.getTotalElements(),
+                    responsePage.getNumber() + 1,
+                    responsePage.getTotalPages());
 
             // Return successful response with pagination metadata
-            return ResponseEntity.ok(usersPage);
+            return ResponseEntity.ok(responsePage);
 
         } catch (Exception e) {
             log.error("Error retrieving users: {}", e.getMessage(), e);
@@ -74,12 +79,13 @@ public class UserController {
      * @return ResponseEntity containing the User entity if found, or an error response
      */
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@RequestParam Long id) {
+    public ResponseEntity<UserResponse> getUserById(@RequestParam Long id) {
         log.info("Retrieving user by ID: {}", id);
         try {
             User user = userService.getUserById(id);
+            UserResponse userResponse = userMapper.toResponse(user);
             log.info("Successfully retrieved user with ID: {}", id);
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(userResponse);
         } catch (Exception e) {
             log.error("Error retrieving user by ID: {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -90,17 +96,19 @@ public class UserController {
     /**
      * Updates an existing user's information.
      *
-     * @param id   The ID of the user to update
-     * @param user The updated User entity
+     * @param id      The ID of the user to update
+     * @param request The UpdateUserRequest containing the updated user information
      * @return ResponseEntity containing the updated User entity if successful, or an error response
      */
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
         log.info("Updating user with ID: {}", id);
         try {
+            User user = userMapper.toEntity(request);
             User updatedUser = userService.updateUser(id, user);
+            UserResponse userResponse = userMapper.toResponse(updatedUser);
             log.info("Successfully updated user with ID: {}", id);
-            return ResponseEntity.ok(updatedUser);
+            return ResponseEntity.ok(userResponse);
         } catch (Exception e) {
             log.error("Error updating user with ID: {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -111,17 +119,19 @@ public class UserController {
     /**
      * Partially updates an existing user's information.
      *
-     * @param id   The ID of the user to update
-     * @param user The User entity containing the fields to update
+     * @param id      The ID of the user to update
+     * @param request The UpdateUserRequest containing the updated user information
      * @return ResponseEntity containing the updated User entity if successful, or an error response
      */
     @PatchMapping("/{id}")
-    public ResponseEntity<User> patchUser(@PathVariable Long id, @RequestBody User user) {
+    public ResponseEntity<UserResponse> patchUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
         log.info("Patching user with ID: {}", id);
         try {
+            User user = userMapper.toEntity(request);
             User patchedUser = userService.patchUser(id, user);
+            UserResponse userResponse = userMapper.toResponse(patchedUser);
             log.info("Successfully patched user with ID: {}", id);
-            return ResponseEntity.ok(patchedUser);
+            return ResponseEntity.ok(userResponse);
         } catch (Exception e) {
             log.error("Error patching user with ID: {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
