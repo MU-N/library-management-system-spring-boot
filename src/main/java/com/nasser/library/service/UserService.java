@@ -1,10 +1,15 @@
 package com.nasser.library.service;
 
+import com.nasser.library.mapper.UserMapper;
 import com.nasser.library.model.dto.request.RegisterRequest;
+import com.nasser.library.model.dto.request.UpdateUserRequest;
+import com.nasser.library.model.dto.response.UserResponse;
 import com.nasser.library.model.entity.AuthProvider;
 import com.nasser.library.model.entity.Role;
 import com.nasser.library.model.entity.User;
 import com.nasser.library.repository.UserRepository;
+import com.nasser.library.util.ValidationUtils;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,6 +31,7 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
 
     public User save(User newUser) {
@@ -268,20 +274,27 @@ public class UserService implements UserDetailsService {
 
 
     /**
-     * Retrieves a paginated list of users from the system with sorting support.
-     * This method provides efficient data retrieval for large user datasets.
+     * Retrieves all users with pagination and sorting.
      *
-     * @param pageable Pagination and sorting parameters
-     * @return a Page object containing user data and pagination metadata
+     * @param page     The page number (zero-based)
+     * @param size     The page size
+     * @param sortBy   The field to sort by
+     * @param sortDir  The sort direction (ASC or DESC)
+     * @return A Page of UserResponse objects
      */
-    public Page<User> getAllUsers(Pageable pageable) {
+    public Page<UserResponse> getAllUsers(int page, int size, String sortBy, String sortDir) {
         log.debug("Retrieving users with pagination - Page: {}, Size: {}, Sort: {}",
-                pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort());
+                page, size, sortBy);
         try {
+            Pageable pageable = ValidationUtils.createPageable(page, size, sortBy, sortDir, log);
+            if (pageable == null) {
+                throw new IllegalArgumentException("Invalid pagination parameters");
+            }
             Page<User> usersPage = userRepository.findAll(pageable);
+            Page<UserResponse> responsePage = usersPage.map(userMapper::toResponse);
             log.debug("Successfully retrieved {} users out of {} total users",
                     usersPage.getNumberOfElements(), usersPage.getTotalElements());
-            return usersPage;
+            return responsePage;
         } catch (Exception e) {
             log.error("Error retrieving paginated users: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to retrieve users", e);
@@ -317,20 +330,13 @@ public class UserService implements UserDetailsService {
      * @return The updated User entity
      * @throws IllegalArgumentException if the user is not found
      */
-    public User updateUser(Long id, User user) {
+    public User updateUser(Long id, UpdateUserRequest user) {
         log.debug("Updating user with ID: {}", id);
         try {
             User existingUser = userRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + id));
 
-            // Update user fields
-            existingUser.setFirstName(user.getFirstName());
-            existingUser.setLastName(user.getLastName());
-            existingUser.setEmail(user.getEmail());
-            existingUser.setPhone(user.getPhone());
-            existingUser.setRole(user.getRole());
-            existingUser.setMaxBooksAllowed(user.getMaxBooksAllowed());
-
+            userMapper.updateEntityFromRequest(user,existingUser);
             User updatedUser = userRepository.save(existingUser);
             log.debug("Successfully updated user with ID: {}", id);
             return updatedUser;
@@ -348,32 +354,13 @@ public class UserService implements UserDetailsService {
      * @return The updated User entity
      * @throws IllegalArgumentException if the user is not found
      */
-    public User patchUser(Long id, User user) {
+    public User patchUser(Long id, UpdateUserRequest user) {
         log.debug("Patching user with ID: {}", id);
         try {
             User existingUser = userRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + id));
 
-            // Update user fields if provided
-            if (user.getFirstName() != null) {
-                existingUser.setFirstName(user.getFirstName());
-            }
-            if (user.getLastName() != null) {
-                existingUser.setLastName(user.getLastName());
-            }
-            if (user.getEmail() != null) {
-                existingUser.setEmail(user.getEmail());
-            }
-            if (user.getPhone() != null) {
-                existingUser.setPhone(user.getPhone());
-            }
-            if (user.getRole() != null) {
-                existingUser.setRole(user.getRole());
-            }
-            if (user.getMaxBooksAllowed() != null) {
-                existingUser.setMaxBooksAllowed(user.getMaxBooksAllowed());
-            }
-
+            userMapper.updateEntityFromRequest(user, existingUser);
             User updatedUser = userRepository.save(existingUser);
             log.debug("Successfully patched user with ID: {}", id);
             return updatedUser;

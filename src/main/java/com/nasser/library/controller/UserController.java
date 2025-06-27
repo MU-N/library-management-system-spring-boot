@@ -2,16 +2,13 @@ package com.nasser.library.controller;
 
 import com.nasser.library.mapper.UserMapper;
 import com.nasser.library.model.dto.request.UpdateUserRequest;
-import com.nasser.library.model.dto.response.UserListResponse;
 import com.nasser.library.model.dto.response.UserResponse;
 import com.nasser.library.model.entity.User;
 import com.nasser.library.service.UserService;
-import com.nasser.library.util.ValidationUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,41 +32,17 @@ public class UserController {
      * @param size    The number of items per page
      * @param sortBy  The field to sort by
      * @param sortDir The sort direction (asc or desc)
-     * @return ResponseEntity containing a Page of UserListResponse objects
+     * @return ResponseEntity containing a Page of UserResponse objects
      */
     @GetMapping
-    public ResponseEntity<Page<UserListResponse>> getAllUsers(
+    public ResponseEntity<Page<UserResponse>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
 
-        log.info("Retrieving users - Page: {}, Size: {}, Sort: {} {}", page, size, sortBy, sortDir);
-        try {
-
-
-            // Create pageable with validation (consolidates all pagination logic)
-            Pageable pageable = ValidationUtils.createPageable(page, size, sortBy, sortDir, log);
-            if (pageable == null) {
-                return ResponseEntity.badRequest().build();
-            }
-            // Get paginated users
-            Page<User> usersPage = userService.getAllUsers(pageable);
-            Page<UserListResponse> responsePage = usersPage.map(userMapper::toListResponse);
-
-            log.info("Successfully retrieved {} users out of {} total users. Page {}/{}",
-                    responsePage.getNumberOfElements(),
-                    responsePage.getTotalElements(),
-                    responsePage.getNumber() + 1,
-                    responsePage.getTotalPages());
-
-            // Return successful response with pagination metadata
-            return ResponseEntity.ok(responsePage);
-
-        } catch (Exception e) {
-            log.error("Error retrieving users: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        Page<UserResponse> userResponses = userService.getAllUsers(page, size, sortBy, sortDir);
+        return ResponseEntity.ok(userResponses);
     }
 
     /**
@@ -104,8 +77,7 @@ public class UserController {
     public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
         log.info("Updating user with ID: {}", id);
         try {
-            User user = userMapper.toEntity(request);
-            User updatedUser = userService.updateUser(id, user);
+            User updatedUser = userService.updateUser(id, request);
             UserResponse userResponse = userMapper.toResponse(updatedUser);
             log.info("Successfully updated user with ID: {}", id);
             return ResponseEntity.ok(userResponse);
@@ -127,8 +99,7 @@ public class UserController {
     public ResponseEntity<UserResponse> patchUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
         log.info("Patching user with ID: {}", id);
         try {
-            User user = userMapper.toEntity(request);
-            User patchedUser = userService.patchUser(id, user);
+            User patchedUser = userService.patchUser(id, request);
             UserResponse userResponse = userMapper.toResponse(patchedUser);
             log.info("Successfully patched user with ID: {}", id);
             return ResponseEntity.ok(userResponse);

@@ -27,6 +27,7 @@ public record BookResponse(
         Integer availableCopies,
         String locationShelf,
         String locationSection,
+        String fullLocation,
         BigDecimal averageRating,
         Integer ratingCount,
         boolean isAvailable,

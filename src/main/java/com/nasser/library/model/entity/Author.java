@@ -10,8 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Builder
-@AllArgsConstructor
+@Builder@AllArgsConstructor
 @NoArgsConstructor
 @Setter
 @Getter

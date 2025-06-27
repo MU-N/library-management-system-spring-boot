@@ -82,6 +82,7 @@ public class SecurityConfig {
                         // Admin-only endpoints
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/**").hasAnyRole("ADMIN", "LIBRARIAN")
+                        .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
 
                         // Librarian and Admin access
                         .requestMatchers(HttpMethod.POST, "/api/v1/books/**").hasAnyRole("ADMIN", "LIBRARIAN")
