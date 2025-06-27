@@ -54,7 +54,6 @@ public class Book extends BaseEntity {
     private Integer pages;
 
     @Size(max = 10, message = "Language code must not exceed 10 characters")
-    @Builder.Default
     @Column(name = "language", length = 10)
     private String language = "EN";
 
@@ -75,17 +74,14 @@ public class Book extends BaseEntity {
 
     @NotNull(message = "Book status is required")
     @Enumerated(EnumType.STRING)
-    @Builder.Default
     @Column(name = "status", nullable = false, length = 20)
     private BookStatus status = BookStatus.AVAILABLE;
 
     @Min(value = 0, message = "Total copies cannot be negative")
-    @Builder.Default
     @Column(name = "total_copies", nullable = false)
     private Integer totalCopies = 0;
 
     @Min(value = 0, message = "Available copies cannot be negative")
-    @Builder.Default
     @Column(name = "available_copies", nullable = false)
     private Integer availableCopies = 0;
 
@@ -101,7 +97,6 @@ public class Book extends BaseEntity {
     private BigDecimal averageRating;
 
     @Min(value = 0, message = "Rating count cannot be negative")
-    @Builder.Default
     @Column(name = "rating_count")
     private Integer ratingCount = 0;
 

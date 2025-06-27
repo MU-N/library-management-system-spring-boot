@@ -18,7 +18,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 
 import java.util.HashMap;
 import java.util.Map;
