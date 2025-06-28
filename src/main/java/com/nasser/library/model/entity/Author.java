@@ -3,6 +3,8 @@ package com.nasser.library.model.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
+import org.mapstruct.Builder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -10,7 +12,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Builder@AllArgsConstructor
+@SuperBuilder
+@AllArgsConstructor
 @NoArgsConstructor
 @Setter
 @Getter
