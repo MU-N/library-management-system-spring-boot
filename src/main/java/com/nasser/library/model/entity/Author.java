@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.mapstruct.Builder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

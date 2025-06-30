@@ -34,6 +34,7 @@ public class Category extends BaseEntity {
 
     @Min(value = 0, message = "Book count cannot be negative")
     @Column(name = "book_count")
+    @Builder.Default
     private Integer bookCount = 0;
 
     // Relationship with books

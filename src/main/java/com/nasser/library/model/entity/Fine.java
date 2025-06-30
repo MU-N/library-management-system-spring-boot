@@ -30,8 +30,8 @@ public class Fine extends BaseEntity {
 
     @NotNull(message = "Fine status is required")
     @Enumerated(EnumType.STRING)
-    @Builder.Default
     @Column(name = "status", nullable = false, length = 20)
+    @Builder.Default
     private FineStatus status = FineStatus.PENDING;
 
     @NotBlank(message = "Reason is required")
@@ -57,6 +57,7 @@ public class Fine extends BaseEntity {
     @DecimalMin(value = "0.0", message = "Paid amount cannot be negative")
     @Digits(integer = 8, fraction = 2, message = "Paid amount format is invalid")
     @Column(name = "paid_amount", precision = 10, scale = 2)
+    @Builder.Default
     private BigDecimal paidAmount = BigDecimal.ZERO;
 
     @Size(max = 100, message = "Processed by must not exceed 100 characters")

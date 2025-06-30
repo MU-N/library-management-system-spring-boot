@@ -56,6 +56,7 @@ public class Book extends BaseEntity {
 
     @Size(max = 10, message = "Language code must not exceed 10 characters")
     @Column(name = "language", length = 10)
+    @Builder.Default
     private String language = "EN";
 
     @Size(max = 50, message = "Edition must not exceed 50 characters")
@@ -76,14 +77,17 @@ public class Book extends BaseEntity {
     @NotNull(message = "Book status is required")
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
+    @Builder.Default
     private BookStatus status = BookStatus.AVAILABLE;
 
     @Min(value = 0, message = "Total copies cannot be negative")
     @Column(name = "total_copies", nullable = false)
+    @Builder.Default
     private Integer totalCopies = 0;
 
     @Min(value = 0, message = "Available copies cannot be negative")
     @Column(name = "available_copies", nullable = false)
+    @Builder.Default
     private Integer availableCopies = 0;
 
     @Column(name = "location_shelf", length = 50)
@@ -99,6 +103,7 @@ public class Book extends BaseEntity {
 
     @Min(value = 0, message = "Rating count cannot be negative")
     @Column(name = "rating_count")
+    @Builder.Default
     private Integer ratingCount = 0;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
@@ -107,6 +112,7 @@ public class Book extends BaseEntity {
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "author_id")
     )
+    @Builder.Default
     private Set<Author> authors = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
@@ -115,6 +121,7 @@ public class Book extends BaseEntity {
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
+    @Builder.Default
     private Set<Category> categories = new HashSet<>();
 
 

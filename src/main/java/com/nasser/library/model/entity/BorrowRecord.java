@@ -34,6 +34,7 @@ public class BorrowRecord extends BaseEntity {
     @NotNull(message = "Borrow status is required")
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
+    @Builder.Default
     private BorrowStatus status = BorrowStatus.ACTIVE;
 
     @Size(max = 1000, message = "Notes must not exceed 1000 characters")
@@ -47,9 +48,11 @@ public class BorrowRecord extends BaseEntity {
     @DecimalMin(value = "0.0", message = "Fine amount cannot be negative")
     @Digits(integer = 8, fraction = 2, message = "Fine amount format is invalid")
     @Column(name = "fine_amount", precision = 10, scale = 2)
+    @Builder.Default
     private BigDecimal fineAmount = BigDecimal.ZERO;
 
     @Column(name = "is_fine_paid")
+    @Builder.Default
     private Boolean isFinePaid = false;
 
     @Column(name = "checked_out_by", length = 100)
@@ -68,6 +71,7 @@ public class BorrowRecord extends BaseEntity {
     private User user;
 
     @OneToMany(mappedBy = "borrowRecord", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
     private Set<Fine> fines = new HashSet<>();
 
     // Business logic methods

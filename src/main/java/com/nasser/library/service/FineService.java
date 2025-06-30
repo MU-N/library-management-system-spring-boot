@@ -311,26 +311,5 @@ public class FineService {
             throw new RuntimeException("Failed to get pending fine count", e);
         }
     }
-
-    /**
-     * Creates overdue fines for active borrow records that are past due.
-     * This method should be called by a scheduled task.
-     *
-     * @param dailyFineRate The fine rate per day for overdue books
-     * @return The number of fines created
-     */
-    @Transactional
-    public int createOverdueFines(BigDecimal dailyFineRate) {
-        log.debug("Creating overdue fines with daily rate: {}", dailyFineRate);
-
-        try {
-            // This would typically be called by a scheduled service
-            // For now, it's a placeholder implementation
-            log.info("Overdue fine creation scheduled task would run here");
-            return 0;
-        } catch (Exception e) {
-            log.error("Error creating overdue fines: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to create overdue fines", e);
-        }
-    }
+    
 } 
