@@ -24,3 +24,5 @@ public record UserResponse(
         LocalDateTime updatedAt,
         String fullName  // This will be computed by MapStruct
 ) {}
+
+
