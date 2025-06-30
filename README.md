@@ -46,7 +46,7 @@ This project is created **for educational and learning purposes**. It is designe
 
 ### 1. Clone the Repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/MU-N/library-management-system-spring-boot
 cd library
 ```
 
